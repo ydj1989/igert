@@ -1,0 +1,67 @@
+{% load staticfiles  %}
+
+
+
+<!doctype html>
+ 
+<html lang="en">
+<head>
+  <script src="{% static 'calc/js/jQuery_1.js' %}"></script>
+  <script src="{% static 'calc/js/jQuery_2.js' %}"></script>
+  <script src="{% static 'calc/js/jQuery_3.js' %}"></script>
+  <script src="{% static 'calc/js/underscore.js' %}"></script>
+  <script src="{% static 'calc/js/firstSource.js' %}"></script>
+  <script src="{% static 'calc/js/jQueryCookie.js'  %}"></script>
+  <script src="{% static 'calc/js/jQueryBlockUI.js' %}"></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'calc/css/style.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'calc/css/spinner.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'calc/css/jQuery_4.css'  %}" />
+</head>
+
+
+<body>
+
+
+
+<div class="wrapper">
+
+	<div class="total">
+
+		<div class="topbar">
+		  <div class="menu">
+			<a href="">Home</a> | 
+			<a href="">About</a> | 
+			<a href="">Research</a> |
+			<a href="http://cleanenergy.ucla.edu/index.html">UCLA Igert Lab</a> |
+		  </div>
+		</div>
+
+		<div class="wrapperCont">
+			<div class="controller">
+				<div class="ctrl ctrl_login cursor">Log In </div>
+				<div class="ctrl ctrl_signup cursor">Sign Up </div>
+				<div class="ctrl ctrl_pvc cursor">PVWatts Calculator
+				</div>
+				<div class="ctrl ctrl_other cursor">Other Calculator
+				</div>
+				<div class="ctrl ctrl_other cursor">Google Map
+				</div>
+				<div class="ctrl ctrl_summary cursor">Summary
+				</div>
+			</div>
+		</div>
+		
+		<div class="bottombar">
+			<div class="start_window">
+				<div class="window_img"></div>
+			</div>
+		</div>
+
+
+	</div>
+</div>
+
+
+
+</body>
+</html>

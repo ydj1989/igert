@@ -1,0 +1,25 @@
+body {
+	height: 400px;
+}
+
+.wrapperMap {
+	position: relative;
+	height: 360px;
+}
+
+#map-canvas {
+	height: 100%
+}
+
+.restMap {
+	position: relative;
+}
+
+#okayButton {
+	float: left;
+}
+
+#cancelButton {
+	float: left;
+	margin-left: 10px;
+}
