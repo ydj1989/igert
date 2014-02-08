@@ -102,6 +102,23 @@ Igert.mainFunction = function() {
 				'<br>' +
 				'<div id="save">Save</div>' +
 			'</div>',
+
+			googleMapHTML =
+				'<div class="wrapperGoogle" id="google_map">' +
+					'<div class="resizable_map">' +
+						'<div class="gmap" >' +					
+							'<div class="pgNav draggable">' +
+								'<div class="tabNav">' + 'GOOGLE MAP' +	
+								'</div>' +
+								'<div class="hide_map cursor"> - </div>' +
+								'<div class="exit cursor"> X </div>' +
+							'</div>' +
+							'<div id="googleMap">' +
+							'</div>'
+						'</div>' +
+					'</div>' +
+				'</div>' ,
+			
 		result_template = _.template(result_html),
 		
 		/*
@@ -147,7 +164,7 @@ Igert.mainFunction = function() {
 		solar_calculator = 
 			'<div class="wrapperCalc" id="solar_calc">' +
 				'<div id="prev" class="cursor"></div>' +
-				'<div class="resizable">' +
+				'<div class="resizable_pvc">' +
 					'<div class="pvcalc">' +
 						'<div id="floatingBarsG">' +
 							'<div class="blockG" id="rotateG_01"></div>' +
@@ -158,12 +175,11 @@ Igert.mainFunction = function() {
 							'<div class="blockG" id="rotateG_06"></div>' +
 							'<div class="blockG" id="rotateG_07"></div>' +
 							'<div class="blockG" id="rotateG_08"></div>' +
-						'</div>' +						
+						'</div>' +	
 						'<div class="pgNav draggable">' +
 							'<div class="tabNav">' +
 								'<div class="all_tabs">' +
-								'</div>' +								
-							'</div>' +
+								'</div>' +														'</div>' +
 							'<div class="pageNav cursor" id="pg0" page="0"> [Name] </div>' +
 							'<div class="pageNav cursor" id="pg1" page="1"> [Input] </div>' +
 							'<div class="pageNav cursor" id="pg2" page="2"> [Result] </div>' +
@@ -178,6 +194,8 @@ Igert.mainFunction = function() {
 				'</div>' +				
 				'<div id="next" class="cursor"></div>' +
 			'</div>' ,
+		heatMapData = {},
+		elevator = {},
 		m_lat = 0,
 		m_lng = 0;
 
@@ -335,12 +353,13 @@ Igert.mainFunction = function() {
 			*/
 			
 		},
-		
+
+		////////////////// Replace!////////////////
 		configureController: function() {
 			var _this = this;
-			
+					
 			$(".ctrl_pvc").on("click", function(e) {
-				var solar_window = '<div class="window_tab solar_calc_window"><div class="solar_img"></div></div>';																											
+				var solar_window = '<div class="window_tab solar_calc_window"><div class="solar_img"/></div>';																											
 				if( $(".wrapperCalc").length == 0 ) {
 					$(".total").append(solar_calculator);
 					$(".bottombar").append(solar_window);
@@ -357,6 +376,26 @@ Igert.mainFunction = function() {
 					
 				}
 			});
+					
+			$(".ctrl_googmap").on("click", function(e) {
+				var gmap_window = '<div class="window_tab google_map_window"><div class="gmap_img"/></div>';																											
+				if( $(".wrapperGoogle").length == 0 ) {
+					$(".total").append(googleMapHTML);
+					$(".bottombar").append(gmap_window);
+					_this.configureSelect();
+					//_this.configureAutoSave();
+					_this.configurePageMove();
+					_this.configurePageNav();
+					_this.GoogleMapWidget();
+					//_this.configureAddTab();
+					//_this.configureTabNav();																						
+					_this.configurePointer();
+					_this.configureWindowGMAP();
+					_this.configureLoadSpinner();
+					_this.heatmapLoad();
+					
+				}
+			});		
 			
 		},
 		
@@ -728,7 +767,7 @@ Igert.mainFunction = function() {
 			$(".ctrl_login").on("click", function() {
 				//alert("MAP");
 				$.blockUI({
-					message: "<div style='position:relative;'><iframe src='/login' width='300' height='200' frameborder='0'></iframe></div>", 
+					message: "<div style='position:relative;'><iframe src='/login' width='300' height='250' frameborder='0'></iframe></div>", 
 					blockMsgClass: 'blockMsg',
 					css: {
 						backgroundColor:'#fff',
@@ -741,7 +780,7 @@ Igert.mainFunction = function() {
 						'-moz-border-radius':'9px',
 						'border-radius':'9px',
 						'width': '300',
-						'height': '200'						
+						'height': '250'						
 					},
 					overlayCSS: {
 						backgroundColor:"#fff",
@@ -766,7 +805,7 @@ Igert.mainFunction = function() {
 			$(".ctrl_signup").on("click", function() {
 				//alert("MAP");
 				$.blockUI({
-					message: "<div style='position:relative;'><iframe src='/signup' width='300' height='300' frameborder='0'></iframe></div>", 
+					message: "<div style='position:relative;'><iframe src='/signup' width='300' height='400' frameborder='0'></iframe></div>", 
 					blockMsgClass: 'blockMsg',
 					css: {
 						backgroundColor:'#fff',
@@ -779,7 +818,7 @@ Igert.mainFunction = function() {
 						'-moz-border-radius':'9px',
 						'border-radius':'9px',
 						'width': '300',
-						'height': '300'						
+						'height': '400'						
 					},
 					overlayCSS: {
 						backgroundColor:"#fff",
@@ -799,7 +838,132 @@ Igert.mainFunction = function() {
 				$(this).removeClass( "pointer" );
 			});					
 			
+		},
+
+		heatmapLoad: function() {
+
+			heatMapData = new google.maps.MVCArray();
+			elevator = new google.maps.ElevationService();			
+			
+			var _this = this,
+				mapOptions = {
+				zoom: 10,
+				center: new google.maps.LatLng(34.0522300, -118.2436800),
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			},
+			map, pointarray, heatmap;
+			
+			var nw_lat = 34.16566,
+				nw_lng = -118.58795,
+				se_lat = 33.93866,
+				se_lng = -118.08533,
+				weightedElev;
+				
+			map = new google.maps.Map( document.getElementById('googleMap'),
+					mapOptions);
+			
+			for (var x = se_lat; x < nw_lat; x+=0.012) {
+				for (var y = nw_lng; y < se_lng; y+= 0.012) {
+					
+					var currentLatLng = [];
+					
+					// convert the increasing latitude & longitude into google map coordinates
+					currentLatLng.push( new google.maps.LatLng(x,y));
+					
+					var positionCoord = {
+						'locations': currentLatLng
+					}
+					
+					if ( x < 34.04 ) {
+						if( y > -118.4314)
+							// plot heatmap only the bottom right area of LA
+							_this.getElevation(positionCoord, x, y)
+					} else {	// plot the top-half part of LA
+						_this.getElevation(positionCoord, x, y)
+					}
+					
+				}
+			}
+			
+			heatmap = new google.maps.visualization.HeatmapLayer({
+				data: heatMapData
+			});
+			
+			heatmap.setMap(map);
+			heatmap.set('radius', heatmap.get('radius') ? null : 20);
+			
+		},
+
+		// Getting the elevation from latitude and longitude plot
+		getElevation: function(data, lat, lng) {
+			// get the weight of elevation at each x,y coordinate
+			elevator.getElevationForLocations(data, function(results, status)
+			{
+				if (status == google.maps.ElevationStatus.OK) {
+					// Retrieve the elevation and append to heatMapData array
+					if (results[0]) {
+					
+						var elev = results[0].elevation;
+						
+						heatMapData.push({
+							location: new google.maps.LatLng(lat, lng),
+							weight: elev
+						});
+				
+					} else {
+					alert("Elevation is not found!");
+					}
+				} else {
+					alert("Elevation service failed due to: " + status);
+				}
+			});
+		},
+
+		///////////////////// NEWLY ADDED!!! ///////////////////////////
+		configureWindowGMAP: function() {
+			$(".google_map_window").off();
+			$(".google_map_window").on("click", function() {
+				$("#google_map").show();
+			}).on("mouseenter", function() {
+				$(this).addClass( "mouseover" );
+				//$(this).css("box-shadow", "0 0 5px 2px rgba(224, 224, 31, 0.8)");
+			}).on("mouseleave", function() {
+				$(this).css("box-shadow", "");
+			});
+		},
+
+		configureCalc: function() {
+			$( ".wrapperCalc" ).draggable({ handle: ".draggable", containment: "parent" });
+			$(".exit").on("click", function() {
+				var calc = $(this).closest(".wrapperCalc"),
+					id = calc.attr("id");
+				calc.remove();
+				$("." + id + "_window").remove();
+				
+			});
+			$(".hide").on("click", function() {
+				$(".wrapperCalc").hide();
+			});
+			$( ".resizable_pvc" ).resizable({ handles: "se", alsoResize: ".wrapperCalc", minWidth: 250, minHeight: 250 });
+		},
+
+		// NEWLY ADDED FUNCTION!!!
+		GoogleMapWidget: function() {
+			$( ".wrapperGoogle" ).draggable({ handle: ".draggable", containment: "parent" });
+			$(".exit").on("click", function() {
+				var calc = $(this).closest(".wrapperGoogle"),
+					id = calc.attr("id");
+				calc.remove();
+				$("." + id + "_window").remove();
+				
+			});
+			$(".hide_map").on("click", function() {
+				$(".wrapperGoogle").hide();
+			});
+			$( ".resizable_map" ).resizable({ handles: "se", alsoResize: ".wrapperGoogle", minWidth: 250, minHeight: 250 });
 		}
+
+		
 	}
 }();
 

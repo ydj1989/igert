@@ -1,0 +1,17 @@
+#first, #last, #email, #password, #password_confirm {
+	display: block;
+	margin: 10px auto 10px auto;
+	padding: 7px;
+	width: 200px;
+}
+
+#register {
+	display: block;
+	margin: 10px auto 10px auto;
+	padding: 12px;
+	width: 100px;
+}
+
+input {
+	font-family: lucida grande, tahoma, verdana, arial, sans-serif;
+}

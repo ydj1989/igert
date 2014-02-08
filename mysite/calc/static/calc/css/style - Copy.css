@@ -85,6 +85,17 @@ a {
   height: 500px;
 }
 
+.resizable {
+  position: absolute !important;
+  left: 30px;
+  right: 30px;
+  top: 0%;
+  height: 100%;
+  border-radius: 5px;
+  min-width: 250px;
+  min-height: 250px;
+}
+
 .pvcalc {
   position: relative;
   width: 100%;
@@ -316,6 +327,11 @@ th {
   border-right: solid 1px;
 }
 
+.window_img {
+  height: 100%;
+  width: 100%;
+}
+
 .map_preview {
   position: relative;
   top: 50px;
@@ -340,13 +356,6 @@ th {
   height: 100%;
 }
 
-.gmap_img {
-  background: url("images/footer.jpg");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  height: 100%;
-}
-
 #googleMap {
   margin-top: 30px;
   position: absolute;
@@ -357,11 +366,12 @@ th {
 .wrapperGoogle {
   position: absolute;
   left: 15%;
-  top: 15%;
-  height: 60%;
-  width: 40%;
+  width: 1100px;
+  top: 105px;
+  height: 600px;
 }
 
+// INSTEAD OF .resiable
 .resizable_pvc {
   position: absolute !important;
   left: 30px;

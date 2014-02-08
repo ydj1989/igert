@@ -20,7 +20,8 @@ Igert.login = function() {
 			var _this = this;
 			$("#login").on("click", function() {
 				_this.initLogin();
-			});			
+				
+			});
 		},
 		
 	}
