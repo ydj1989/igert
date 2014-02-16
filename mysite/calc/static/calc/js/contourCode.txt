@@ -1,0 +1,87 @@
+DrawShapes: function(map_id, location, shapes)
+		{
+			var _this = this;
+			var bounds = new google.maps.LatLngBounds();
+			
+			// initiate GoogleMap! only if gMap is NULL
+			if (gMap == null)
+				_this.initializeMap(map_id);
+			
+			if (shapes != null)
+			{							
+				for (var key in shapes) {
+					if (shapes.hasOwnProperty(key)) {
+						var info = shapes[key].Popup;
+						var solar = _this.getSolarInfo( shapes[key].Zip, _this.CreatePolygon );
+						var avg_Solar, avg_AC;
+						var bg, outline;
+						
+						var dataOutput = _this.callbackSolar(solar);
+						
+						console.log("DATA OUTPUT>>>>", dataOutput)
+						bg = dataOutput[0];
+						outline = dataOutput[1];
+						
+						var poly = _this.CreatePolygon (shapes[key].Shape, shapes[key].LatLon, bg, outline, info);
+						var coord = shapes[key].LatLon.split(',');
+						
+					}
+					//bounds.extend (new google.maps.LatLng (coord[0],coord[1]));
+					console.log("ENd")
+					
+				}
+				/*if (shapes.length > 1) {	//make sure that there are more then one point
+					gMap.setCenter(bounds.getCenter());
+					gMap.fitBounds(bounds);
+				}*/
+				
+				return true;
+			}
+			return false;
+		},
+		
+		// callback for ajax success
+		callbackSolar: function (callback)
+		{
+			var _this = this;
+			var colors = [];
+		
+			callback.success(function (data) {
+				var avg_Solar = data.outputs.solrad_annual;
+				var avg_AC = data.outputs.ac_annual;
+				var fill, border;
+				
+				if ( avg_Solar > 5) {
+					fill = "#c60c0c";
+					border = "#9f1f1f";
+				} else {
+					fill = "#1f4a9f";
+					border = "#1f5f9f";
+				}
+				
+				colors.push([fill, border]);
+				console.log("FILLingsss ", fill, border)
+				
+			}).error(function(jqXHR, textStatus, errorThrown) {
+				console.log("Failed due to: " + textStatus)
+			});
+		
+			
+		},
+		
+		// Gets solar information based on the location
+		getSolarInfo: function( addr, callback )
+		{
+			var _this = this,
+				request = "http://developer.nrel.gov/api/pvwatts/v4.json?api_key=6effe95b2abb3a80c5983f48ac4dad98998f1a22",
+				res_solrad_ann,
+				res_ac_ann;
+			
+			// append the address info to request
+			request = request + "&address=" + addr + "&system_size=4&track_mode=0&derate=0.77&tilt=0.0&azimuth=180&econ_1=Residential&econ_2=0.00&econ_3=3.70";
+			
+			return $.ajax({
+				url: request, 
+				type: "GET",
+			});
+		},
